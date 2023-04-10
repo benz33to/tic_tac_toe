@@ -14,6 +14,26 @@ module Output
       puts '' if ((index + 1) % 3).zero?
     end
   end
+
+  def already_selected_message(selection)
+    puts "Number #{selection} is already selected!"
+  end
+
+  def rules_message(rules)
+    puts rules
+  end
+
+  def wait_input_message(player)
+    puts "Waiting for #{player.name} selection"
+  end
+
+  def welcome_message(game_name, game_rules)
+    puts "Welcome to #{game_name}, #{game_rules}"
+  end
+
+  def winner_message(player)
+    puts "#{player.name} is the winner!"
+  end
 end
 
 # Console input module
@@ -28,7 +48,7 @@ module Input
     if (1..9).include?(selection)
       true
     else
-      puts 'Please select a number from 1 to 9'
+      rules_message(rules)
       false
     end
   end
@@ -37,7 +57,7 @@ module Input
     player1_selections = players[0].selections
     player2_selections = players[1].selections
     if player1_selections.include?(selection) || player2_selections.include?(selection)
-      puts "Number #{selection} is already selected!"
+      already_selected_message(selection)
       false
     else
       true
@@ -49,41 +69,41 @@ end
 class Game
   include Output
   include Input
-  attr_reader :name, :instructions, :over
+  attr_reader :name, :rules, :over
   attr_accessor :players, :grid
 
   def initialize
     @name = ''
-    @instructions = ''
+    @rules = ''
     @over = false
     @players = []
     @grid = []
   end
 
-  def play(name, instructions)
-    puts "Welcome to #{name}, #{instructions}"
+  def play(name, rules)
+    welcome_message(name, rules)
   end
 
   def end_game(player)
-    puts "#{player.name} is the winner!"
+    winner_message(player)
     @over = true
   end
 end
 
-# Tic tac toe class
+# Tic tac toe class,extends Game class
 class TicTacToe < Game
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]].freeze
 
   def initialize
     super
     @name = 'Tick tack toe'
-    @instructions = 'press a number from 1 to 9 and then hit enter'
+    @rules = 'press a number from 1 to 9 and then hit enter'
     @players = [Player.new('p1'), Player.new('p2')]
     @grid = Array.new(9, '-')
   end
 
   def play
-    super(@name, @instructions)
+    super(@name, @rules)
     manage_selections(players) while over == false
   end
 
@@ -91,7 +111,7 @@ class TicTacToe < Game
 
   def manage_selections(players)
     players.each do |player|
-      puts "Waiting for #{player.name} selection"
+      wait_input_message(player)
       player.selections.push(player_selection)
       if winner?(player.selections)
         end_game(player)
