@@ -19,6 +19,10 @@ module Output
     puts "Number #{selection} is already selected!"
   end
 
+  def draw_message
+    puts 'We got a draw!'
+  end
+
   def rules_message(rules)
     puts rules
   end
@@ -70,7 +74,7 @@ class Game
   include Output
   include Input
   attr_reader :name, :rules, :over
-  attr_accessor :players, :grid
+  attr_accessor :grid, :players, :winner
 
   def initialize
     @name = ''
@@ -84,8 +88,10 @@ class Game
     welcome_message(name, rules)
   end
 
-  def end_game(player)
-    winner_message(player)
+  protected
+
+  def end_game
+    winner ? winner_message(winner) : draw_message
     @over = true
   end
 end
@@ -113,16 +119,27 @@ class TicTacToe < Game
     players.each do |player|
       wait_input_message(player)
       player.selections.push(player_selection)
-      if winner?(player.selections)
-        end_game(player)
+      if winner?(player) || draw?(players)
+        end_game
         break
       end
     end
     draw_grid(players[0].selections, players[1].selections)
   end
 
-  def winner?(selections)
-    WINNING_LINES.include?(selections)
+  def winner?(player)
+    if WINNING_LINES.include?(player.selections)
+      @winner = player
+      true
+    else
+      false
+    end
+  end
+
+  def draw?(players)
+    player1_selections = players[0].selections
+    player2_selections = players[1].selections
+    player1_selections.size + player2_selections.size == grid.size
   end
 end
 
