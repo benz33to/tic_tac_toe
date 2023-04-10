@@ -18,19 +18,30 @@ end
 
 # Console input module
 module Input
-  def user_selection
-    selection = gets until numeric_selection?(selection) && new_selection?(selection.chomp)
+  def player_selection
+    selection = gets.chomp.to_i
+    selection = gets.chomp.to_i until numeric_selection?(selection) && new_selection?(selection)
     selection
   end
 
   def numeric_selection?(selection)
-    selection =~ /[1-9]/
+    if (1..9).include?(selection)
+      true
+    else
+      puts 'Please select a number from 1 to 9'
+      false
+    end
   end
 
   def new_selection?(selection)
     player1_selections = players[0].selections
     player2_selections = players[1].selections
-    player1_selections.include?(selection) || player2_selections.include?(selection) ? false : true
+    if player1_selections.include?(selection) || player2_selections.include?(selection)
+      puts "Number #{selection} is already selected!"
+      false
+    else
+      true
+    end
   end
 end
 
@@ -52,8 +63,6 @@ class Game
   def play(name, instructions)
     puts "Welcome to #{name}, #{instructions}"
   end
-
-  protected
 
   def end_game(player)
     puts "#{player.name} is the winner!"
@@ -83,7 +92,7 @@ class TicTacToe < Game
   def manage_selections(players)
     players.each do |player|
       puts "Waiting for #{player.name} selection"
-      player.selections.push(user_selection.chomp.to_i)
+      player.selections.push(player_selection)
       if winner?(player.selections)
         end_game(player)
         break
